@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import { BaseDatabase } from "../data/BaseDatabase";
 
 export class UserController {
 
@@ -13,6 +14,9 @@ export class UserController {
             const { statusCode, message } = error
             res.status(statusCode || 400).send({ message });
         }
+
+        await BaseDatabase.destroyConnection();
+
     }
 
     public async login(req: Request, res: Response) {
@@ -25,7 +29,10 @@ export class UserController {
             const { statusCode, message } = error
             res.status(statusCode || 400).send({ message });
         }
+
+        await BaseDatabase.destroyConnection();
     }
+
 }
 
 export default new UserController()

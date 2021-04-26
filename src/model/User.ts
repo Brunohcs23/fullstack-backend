@@ -26,5 +26,17 @@ export class User {
     public getPassword(): string {
         return this.password;
     }
+}
 
+export interface UserInputDTO {
+    name: string;
+    email: string;
+    nickname: string;
+    password: string;
+}
+
+export interface LoginInputDTO {
+    email: string;
+    nickname?: string;
+    password: string;
 }
