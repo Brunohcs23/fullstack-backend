@@ -30,7 +30,6 @@ export class UserController {
 
             const input: LoginInputDTO = {
                 email: req.body.email,
-                nickname: req.body.nickname,
                 password: req.body.password
             }
 

@@ -1,5 +1,5 @@
 import { CustomError } from "../errors/CustomError";
-import { SignupInputDTO } from "../model/User";
+import { LoginInputDTO, SignupInputDTO } from "../model/User";
 import { Authenticator } from "../services/Authenticator";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
@@ -46,6 +46,30 @@ export class UserBusiness {
         }
     }
 
-    public async login() { }
+    public async login(user: LoginInputDTO) {
+
+        try {
+
+            if (!user.email || !user.password) {
+                throw new CustomError(422, "Missing input! Check 'email' and 'password' were filled");
+            }
+            
+            /* Checar no bando se existe o usuario */
+
+            const authUser = { id: "id" }
+
+            if (!authUser) {
+                throw new CustomError(401, "Invalid credentials");
+            }
+
+            /* Checar se a senha informada é a correta */
+
+    
+        } catch (error) {
+
+            throw new CustomError(error.statusCode, error.message)
+
+        }
+    }
 
 }
