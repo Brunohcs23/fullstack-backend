@@ -1,5 +1,6 @@
+import { UserDatabase } from "../data/UserDatabase";
 import { CustomError } from "../errors/CustomError";
-import { LoginInputDTO, SignupInputDTO } from "../model/User";
+import { LoginInputDTO, SignupInputDTO, User } from "../model/User";
 import { Authenticator } from "../services/Authenticator";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
@@ -8,7 +9,8 @@ export class UserBusiness {
     constructor(
         private idGenerator: IdGenerator,
         private hashManager: HashManager,
-        private authenticator: Authenticator
+        private authenticator: Authenticator,
+        private userDatabase: UserDatabase
     ) { }
 
     public async signup(user: SignupInputDTO) {
@@ -30,11 +32,13 @@ export class UserBusiness {
             const id = this.idGenerator.generate();
             const cypherPassword = await this.hashManager.hash(user.password)
 
-            /* Criar a função de chama o banco de dados */
+            await this.userDatabase.createUser(
+                new User(id, user.name, user.email, user.nickname, cypherPassword)
+            )
 
-            const token: string = this.authenticator.generateToken({ id })
+            const acessToken: string = this.authenticator.generateToken({ id })
 
-            return token
+            return acessToken
 
         } catch (error) {
 
@@ -53,18 +57,28 @@ export class UserBusiness {
             if (!user.email || !user.password) {
                 throw new CustomError(422, "Missing input! Check 'email' and 'password' were filled");
             }
-            
-            /* Checar no bando se existe o usuario */
 
-            const authUser = { id: "id" }
+            /* 
+            Checar no banco se existe o usuario por email.
+            Futura implementação de busca por nickname tambem. Talvez usando um if/else com regex.
+            */
+
+            const authUser = await this.userDatabase.getUserByEmail(user.email)
 
             if (!authUser) {
                 throw new CustomError(401, "Invalid credentials");
             }
 
-            /* Checar se a senha informada é a correta */
+            const passwordCompare = await this.hashManager.compare(user.password, authUser.getPassword())
 
-    
+            if (!passwordCompare) {
+                throw new CustomError(401, "Invalid Password!")
+            }
+
+            const acessToken = this.authenticator.generateToken({ id: authUser.getId() })
+
+            return acessToken
+
         } catch (error) {
 
             throw new CustomError(error.statusCode, error.message)
@@ -73,3 +87,10 @@ export class UserBusiness {
     }
 
 }
+
+export default new UserBusiness(
+    new IdGenerator(),
+    new HashManager(),
+    new Authenticator(),
+    new UserDatabase()
+)
