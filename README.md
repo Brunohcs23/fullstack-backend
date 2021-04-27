@@ -26,6 +26,18 @@ O cadastro deve ser criado com um método post. Os campos devem seguir a estrutu
 
 Como dito anteriormente, o sistema vai gerenciar imagens ou músicas. Então, antes de mais nada, precisamos poder **criar** imagens ou músicas em nossa aplicação. Para isso, basta que as informações necessárias (explicadas um pouco mais para frente no texto) sejam preenchidas. As imagens ou músicas devem ser guardadas em um banco de dados.
 
+Para criar uma imagem, precisaremos dos seguintes dados:
+
+~~~typescript
+	id: string,
+	subtitle: string,
+	author: string,
+	date: Date,
+	file: string,
+	tags: string[],
+	collection: string
+~~~
+
 **Leitura de música ou imagem**
 
 Para gerenciar o conteúdo, precisamos acessá-lo. Para isso, haverão caminhos para a leitura destes. Será necessário ler os conteúdos das seguintes formas:
