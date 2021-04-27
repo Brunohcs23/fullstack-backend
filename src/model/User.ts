@@ -37,6 +37,5 @@ export interface SignupInputDTO {
 
 export interface LoginInputDTO {
     email: string;
-    nickname?: string;
     password: string;
 }
