@@ -60,7 +60,7 @@ export class UserBusiness {
 
             /* 
             Checar no banco se existe o usuario por email.
-            Futura implementação de busca por nickname tambem.
+            Futura implementação de busca por nickname tambem. Talvez usando um if/else com regex.
             */
 
             const authUser = await this.userDatabase.getUserByEmail(user.email)
