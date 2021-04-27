@@ -83,3 +83,54 @@ describe("Signup", () => {
         }
     })
 })
+
+describe("Login", () => {
+
+    test("Should return error when 'email' or 'password' are blank", async () => {
+        expect.assertions(2)
+
+        try {
+
+            await userBusiness.login({
+                email: "",
+                password: userMock.getPassword()
+            })
+
+        } catch (error) {
+            expect(error.statusCode).toBe(422)
+            expect(error.message).toBe("Missing input! Check 'email' and 'password' were filled")
+        }
+    })
+
+    test("Should return error when 'email' is invalid", async () => {
+        expect.assertions(2)
+
+        try {
+
+            await userBusiness.login({
+                email: "bruno@teste.com.br",
+                password: userMock.getPassword()
+            })
+
+        } catch (error) {
+            expect(error.statusCode).toBe(401)
+            expect(error.message).toBe("Invalid credentials")
+        }
+    })
+
+    test("Should return error when 'password' is invalid", async () => {
+        expect.assertions(2)
+
+        try {
+
+            await userBusiness.login({
+                email: userMock.getEmail(),
+                password: "23181910"
+            })
+
+        } catch (error) {
+            expect(error.statusCode).toBe(401)
+            expect(error.message).toBe("Invalid credentials")
+        }
+    })
+})

@@ -72,7 +72,7 @@ export class UserBusiness {
             const passwordCompare = await this.hashManager.compare(user.password, authUser.getPassword())
 
             if (!passwordCompare) {
-                throw new CustomError(401, "Invalid Password!")
+                throw new CustomError(401, "Invalid credentials")
             }
 
             const acessToken = this.authenticator.generateToken({ id: authUser.getId() })
