@@ -82,6 +82,24 @@ describe("Signup", () => {
             expect(error.message).toBe("Sorry, your 'password' must be at least 7 characters")
         }
     })
+
+    test("Should return Sucess when all fields are correct", async () => {
+        expect.assertions(1)
+        try {
+
+            const acessToken = await userBusiness.signup({
+                name: userMock.getName(),
+                email: userMock.getEmail(),
+                nickname: userMock.getNickname(),
+                password: userMock.getPassword()
+            })
+
+            expect(acessToken).toBe("token")
+
+        } catch (error) {
+
+        }
+    })
 })
 
 describe("Login", () => {
@@ -131,6 +149,22 @@ describe("Login", () => {
         } catch (error) {
             expect(error.statusCode).toBe(401)
             expect(error.message).toBe("Invalid credentials")
+        }
+    })
+
+    test("Should return Sucess when all fields are correct", async () => {
+        expect.assertions(1)
+        try {
+
+            const acessToken = await userBusiness.login({                
+                email: userMock.getEmail(),
+                password: userMock.getPassword()
+            })
+
+            expect(acessToken).toBe("token")
+
+        } catch (error) {
+
         }
     })
 })
