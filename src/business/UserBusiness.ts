@@ -58,21 +58,31 @@ export class UserBusiness {
                 throw new CustomError(422, "Missing input! Check 'email' and 'password' were filled");
             }
 
-            /* Checar no bando se existe o usuario */
+            /* 
+            Checar no banco se existe o usuario por email.
+            Futura implementação de busca por nickname tambem.
+            */
 
-            const authUser = { id: "id" }
+            const authUser = await this.userDatabase.getUserByEmail(user.email)
 
             if (!authUser) {
                 throw new CustomError(401, "Invalid credentials");
             }
 
-            /* Checar se a senha informada é a correta */
+            const passwordCompare = await this.hashManager.compare(user.password, authUser.getPassword())
 
+            if (!passwordCompare) {
+                throw new CustomError(401, "Invalid Password!")
+            }
+
+            const token = this.authenticator.generateToken({ id: authUser.getId() })
+
+            return token
 
         } catch (error) {
 
             throw new CustomError(error.statusCode, error.message)
-
+            
         }
     }
 

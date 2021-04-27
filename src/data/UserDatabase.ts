@@ -21,4 +21,21 @@ export class UserDatabase extends BaseDatabase {
             throw new Error(error.sqlmessage || error.message);
         }
     }
+
+    public async getUserByEmail(email: string): Promise<User | undefined> {
+        try {
+
+            const result = await this.getConnection()
+                .from(this.TABLE_NAME)
+                .where({ email })
+
+            return result[0]
+
+        } catch (error) {
+            throw new Error(error.sqlMessage || error.message)
+        }
+    }
+
 }
+
+export default new UserDatabase()
