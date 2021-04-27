@@ -36,9 +36,9 @@ export class UserBusiness {
                 new User(id, user.name, user.email, user.nickname, cypherPassword)
             )
 
-            const token: string = this.authenticator.generateToken({ id })
+            const acessToken: string = this.authenticator.generateToken({ id })
 
-            return token
+            return acessToken
 
         } catch (error) {
 
@@ -75,14 +75,14 @@ export class UserBusiness {
                 throw new CustomError(401, "Invalid Password!")
             }
 
-            const token = this.authenticator.generateToken({ id: authUser.getId() })
+            const acessToken = this.authenticator.generateToken({ id: authUser.getId() })
 
-            return token
+            return acessToken
 
         } catch (error) {
 
             throw new CustomError(error.statusCode, error.message)
-            
+
         }
     }
 

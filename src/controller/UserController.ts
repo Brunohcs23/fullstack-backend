@@ -1,4 +1,5 @@
 import { Request, Response } from "express";
+import userBusiness from "../business/UserBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
 import { LoginInputDTO, SignupInputDTO } from "../model/User";
 
@@ -14,7 +15,9 @@ export class UserController {
                 password: req.body.password
             }
 
-            res.status(200).send();
+            const token = await userBusiness.signup(input)
+
+            res.status(200).send(token);
 
         } catch (error) {
             const { statusCode, message } = error
@@ -33,7 +36,9 @@ export class UserController {
                 password: req.body.password
             }
 
-            res.status(200).send();
+            const token = await userBusiness.login(input)
+
+            res.status(200).send(token);
 
         } catch (error) {
             const { statusCode, message } = error
