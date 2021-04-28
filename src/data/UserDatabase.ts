@@ -26,6 +26,7 @@ export class UserDatabase extends BaseDatabase {
         try {
 
             const result = await this.getConnection()
+                .select("*")
                 .from(this.TABLE_NAME)
                 .where({ email })
 

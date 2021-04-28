@@ -1,4 +1,4 @@
-import { Media, TagsDTO } from "../model/Media";
+import { Image, Tags, TagsDTO } from "../model/Media";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class ImageDatabase extends BaseDatabase {
@@ -7,7 +7,7 @@ export class ImageDatabase extends BaseDatabase {
     private TABLE_TAGS: string = "tabela criada para as tags"
     private TABLE_IMAGES_TAGS: string = "tabela combinada para as imagens e as tags"
 
-    public async createImage(image: Media): Promise<void> {
+    public async createImage(image: Image): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
@@ -20,41 +20,25 @@ export class ImageDatabase extends BaseDatabase {
                 })
                 .into(this.TABLE_IMAGE)
 
-            for (let tag of image.getTags()) {
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
 
-                const results: TagsDTO[] = await this.getConnection()
-                    .from(this.TABLE_TAGS)
+    public async addTags(id: string, tags: Tags): Promise<void> {
+        try {
 
-                for (let result of results) {
 
-                    if (result.name === tag) {
-                        await this.getConnection()
-                            .insert({
-                                image_id: image.getId(),
-                                tag_id: result.id
-                            })
-                            .into(this.TABLE_IMAGES_TAGS)
-
-                    } else {
-                        
-                        await this.getConnection()
-                            .insert({
-                                name: tag
-                            })
-                            .into(this.TABLE_TAGS)
-                    }
-                }
-
-            }
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
         }
     }
 
-    public async getAllImages(): Promise<Media[] | undefined> {
+    public async getAllImages(): Promise<Image[] | undefined> {
         try {
             const result = await this.getConnection()
+                .select("*")
                 .from(this.TABLE_IMAGE)
 
             return result
@@ -64,7 +48,7 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getImageById(id: string): Promise<Media | undefined> {
+    public async getImageById(id: string): Promise<Image | undefined> {
         try {
             const result = await this.getConnection()
                 .from(this.TABLE_IMAGE)

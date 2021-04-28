@@ -1,11 +1,10 @@
-export class Media {
+export class Image {
     constructor(
         private id: string,
         private subtitle: string,
         private author: string,
         private date: Date = new Date(),
         private file: string,
-        private tags: string[] = [],
         private collection: string
     ) { }
 
@@ -29,21 +28,22 @@ export class Media {
         return this.file
     }
 
-    public getTags(): string[] {
-        return this.tags
-    }
-
     public getCollection(): string {
         return this.collection
     }
-
-    public setTags(tags: string[]) {
-        this.tags = [...this.tags, ...tags]
-    }
-
 }
 
-export interface MediaInputDTO {
+export class Tags {
+    constructor(
+        private tags: string[] = []
+    ) { }
+
+    public getTags(): string[] { 
+        return this.tags
+    }
+}
+
+export interface ImageInputDTO {
     subtitle: string,
     author: string,
     file: string,
