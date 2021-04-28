@@ -1,11 +1,13 @@
-import { Media } from "../model/Media";
+import { Image, Tags, TagsDTO } from "../model/Media";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class ImageDatabase extends BaseDatabase {
 
-    private TABLE_NAME: string = "tabela criada para as imagens"
+    private TABLE_IMAGE: string = "tabela criada para as imagens"
+    private TABLE_TAGS: string = "tabela criada para as tags"
+    private TABLE_IMAGES_TAGS: string = "tabela combinada para as imagens e as tags"
 
-    public async createImage(image: Media): Promise<void> {
+    public async createImage(image: Image): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
@@ -14,20 +16,30 @@ export class ImageDatabase extends BaseDatabase {
                     author: image.getAuthor(),
                     date: image.getDate(),
                     file: image.getFile(),
-                    tags: image.getTags(),
                     collection: image.getCollection()
                 })
-                .into(this.TABLE_NAME)
+                .into(this.TABLE_IMAGE)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
         }
     }
 
-    public async getAllImages(): Promise<Media[] | undefined> {
+    public async addTags(id: string, tags: Tags): Promise<void> {
+        try {
+
+
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async getAllImages(): Promise<Image[] | undefined> {
         try {
             const result = await this.getConnection()
-                .from(this.TABLE_NAME)
+                .select("*")
+                .from(this.TABLE_IMAGE)
 
             return result
 
@@ -36,10 +48,10 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getImageById(id: string): Promise<Media | undefined> {
+    public async getImageById(id: string): Promise<Image | undefined> {
         try {
             const result = await this.getConnection()
-                .from(this.TABLE_NAME)
+                .from(this.TABLE_IMAGE)
                 .where({ id })
 
             return result[0]
