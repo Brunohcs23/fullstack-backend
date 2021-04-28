@@ -37,16 +37,21 @@ export class Media {
         return this.collection
     }
 
-    public setTags(tags: string[]){
+    public setTags(tags: string[]) {
         this.tags = [...this.tags, ...tags]
     }
 
 }
 
-export interface MediaInputDTO { 
+export interface MediaInputDTO {
     subtitle: string,
     author: string,
     file: string,
     tags: string[]
     collection: string
+}
+
+export interface TagsDTO {
+    id: string,
+    name: string
 }
