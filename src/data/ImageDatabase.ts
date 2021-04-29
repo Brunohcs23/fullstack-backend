@@ -25,10 +25,43 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async addTags(id: string, tags: Tags): Promise<void> {
+    public async findTag(text: string): Promise<TagsDTO | undefined> {
         try {
 
+            const [tag] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_TAGS)
+                .where({ name: text })
+            return tag
 
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async createTag(tag: TagsDTO): Promise<void> {
+        try {
+            await this.getConnection().
+                insert({
+                    id: tag.id,
+                    name: tag.name
+                })
+                .into(this.TABLE_TAGS)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async addImageTags(imageId: string, tagId: string): Promise<void> {
+
+        try {
+            await this.getConnection()
+                .insert({
+                    image_id: imageId,
+                    tag_id: tagId
+                })
+                .into(this.TABLE_IMAGES_TAGS)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
