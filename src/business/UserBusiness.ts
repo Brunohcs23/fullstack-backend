@@ -13,7 +13,7 @@ export class UserBusiness {
         private userDatabase: UserDatabase
     ) { }
 
-    public async signup(user: SignupInputDTO) {
+    public async signup(user: SignupInputDTO): Promise<string> {
 
         try {
 
@@ -46,11 +46,15 @@ export class UserBusiness {
                 throw new CustomError(409, "Email already in use")
             }
 
+            if (error.message.includes("key 'nickname'")) {
+                throw new CustomError(409, "Nickname already in use")
+            }
+
             throw new CustomError(error.statusCode, error.message)
         }
     }
 
-    public async login(user: LoginInputDTO) {
+    public async login(user: LoginInputDTO): Promise<string> {
 
         try {
 
