@@ -94,3 +94,5 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 }
+
+export default new ImageDatabase()
