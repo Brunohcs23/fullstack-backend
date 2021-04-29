@@ -16,7 +16,7 @@ export class ImageBusiness {
                 throw new CustomError(422, "Please check 'subtitle', 'author', 'file' and 'collection' were filled")
             }
 
-            if(input.tags.length < 1){
+            if (input.tags.length < 1) {
                 throw new CustomError(422, "Please provide at least 1 'tag'!")
             }
 
@@ -32,12 +32,13 @@ export class ImageBusiness {
                         new Image(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
                     )
                     await this.imageDatabase.addImageTags(imageId, tagId)
-                }
 
-                await this.imageDatabase.createImage(
-                    new Image(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
-                )
-                await this.imageDatabase.addImageTags(imageId, tag.id)
+                } else {
+                    await this.imageDatabase.createImage(
+                        new Image(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
+                    )                    
+                    await this.imageDatabase.addImageTags(imageId, tag.id)
+                }
             }
 
         } catch (error) {
