@@ -6,10 +6,9 @@ export class AuthenticatorMock {
   }
 
   public getData = (token: string): AuthenticationData => {
+
     if (!token) {
-
       throw new Error("Check AuthenticatorMock");
-
     }
     return {
       id: "id"

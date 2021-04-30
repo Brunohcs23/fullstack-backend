@@ -1,4 +1,4 @@
-import { Image, TagsDTO } from "../../src/model/Media";
+import { TagsDTO } from "../../src/model/Media";
 
 export class ImageDatabaseMock{
 

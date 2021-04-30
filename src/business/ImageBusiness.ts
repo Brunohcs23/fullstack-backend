@@ -2,15 +2,27 @@ import { CustomError } from "../errors/CustomError";
 import { ImageDatabase } from "../data/ImageDatabase";
 import { ImageInputDTO, TagsDTO } from "../model/Media";
 import { IdGenerator } from "../services/IdGenerator";
+import { Authenticator } from "../services/Authenticator";
 
 export class ImageBusiness {
     constructor(
         private idGenerator: IdGenerator,
+        private authenticator: Authenticator,
         private imageDatabase: ImageDatabase
     ) { }
 
-    public async createImage(input: ImageInputDTO): Promise<void> {
+    public async createImage(token: string, input: ImageInputDTO): Promise<void> {
         try {
+
+            if (!token) {
+                throw new CustomError(422, "Sorry!You must be 'login' to use these resource")
+            }
+
+            const authToken = this.authenticator.getData(token)
+
+            if(!authToken.id){
+                throw new CustomError(404, "Sorry! User not found")
+            }
 
             if (!input.subtitle || !input.author || !input.file || !input.collection) {
                 throw new CustomError(422, "Please check 'subtitle', 'author', 'file' and 'collection' were filled")
@@ -52,5 +64,6 @@ export class ImageBusiness {
 
 export default new ImageBusiness(
     new IdGenerator(),
+    new Authenticator(),
     new ImageDatabase()
 )
