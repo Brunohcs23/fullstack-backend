@@ -1,4 +1,4 @@
-import { Image, Tags, TagsDTO } from "../model/Media";
+import { Image, TagsDTO } from "../model/Media";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class ImageDatabase extends BaseDatabase {
@@ -7,16 +7,23 @@ export class ImageDatabase extends BaseDatabase {
     private TABLE_TAGS: string = "tabela criada para as tags"
     private TABLE_IMAGES_TAGS: string = "tabela combinada para as imagens e as tags"
 
-    public async createImage(image: Image): Promise<void> {
+    public async createImage(
+        id: string,
+        subtitle: string,
+        author: string,
+        date: Date,
+        file: string,
+        collection: string
+    ): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
-                    id: image.getId(),
-                    subtitle: image.getSubtitle(),
-                    author: image.getAuthor(),
-                    date: image.getDate(),
-                    file: image.getFile(),
-                    collection: image.getCollection()
+                    id,
+                    subtitle,
+                    author,
+                    date,
+                    file,
+                    collection
                 })
                 .into(this.TABLE_IMAGE)
 

@@ -1,6 +1,6 @@
 import { CustomError } from "../errors/CustomError";
 import { ImageDatabase } from "../data/ImageDatabase";
-import { Image, ImageInputDTO, TagsDTO } from "../model/Media";
+import { ImageInputDTO, TagsDTO } from "../model/Media";
 import { IdGenerator } from "../services/IdGenerator";
 
 export class ImageBusiness {
@@ -21,24 +21,26 @@ export class ImageBusiness {
             }
 
             const imageId = this.idGenerator.generate()
+            let imageTags: string[] = []
 
             for (let item of input.tags) {
+
+                const tagId = this.idGenerator.generate()
                 const tag: TagsDTO = await this.imageDatabase.findTag(item)
 
                 if (!tag) {
-                    const tagId = this.idGenerator.generate()
                     await this.imageDatabase.createTag({ id: tagId, name: item })
-                    await this.imageDatabase.createImage(
-                        new Image(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
-                    )
-                    await this.imageDatabase.addImageTags(imageId, tagId)
+                    imageTags.push(tag.id)
 
                 } else {
-                    await this.imageDatabase.createImage(
-                        new Image(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
-                    )                    
-                    await this.imageDatabase.addImageTags(imageId, tag.id)
+                    imageTags.push(tag.id)
                 }
+            }
+
+            await this.imageDatabase.createImage(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
+
+            for (let tag of imageTags) {
+                await this.imageDatabase.addImageTags(imageId, tag)
             }
 
         } catch (error) {
