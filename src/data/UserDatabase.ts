@@ -1,4 +1,4 @@
-import { User } from "../model/User";
+import { FindUser, User } from "../model/User";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class UserDatabase extends BaseDatabase {
@@ -37,6 +37,23 @@ export class UserDatabase extends BaseDatabase {
         }
     }
 
+    public async getUserById(id: string): Promise<FindUser> {
+        try {
+
+            const [user] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_NAME)
+                .where({ id })
+
+            return {
+                name: user.name,
+                nickname: user.nickname
+            }
+
+        } catch (error) {
+            throw new Error(error.sqlMessage || error.message)
+        }
+    }
 }
 
 export default new UserDatabase()

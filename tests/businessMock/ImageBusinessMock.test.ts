@@ -11,6 +11,28 @@ const imageBusiness = new ImageBusiness(
     imageDatabaseMock as ImageDatabase
 )
 
+describe("Token", () => { 
+    test("Should return error when 'token' is invalid", async () => {
+        expect.assertions(2)
+
+        try {
+            await imageBusiness.createImage("invalid", {
+                subtitle: "texto",
+                author: "Bruno",
+                file: "link da imagem",
+                tags: ["tag1", "tag2"],
+                collection: "Festas"
+
+            })
+
+        } catch (error) {
+            expect(error.statusCode).toBe(404)
+            expect(error.message).toBe("Sorry! User not found")
+        }
+    })
+    
+})
+
 describe("Create Image", () => {
 
 
