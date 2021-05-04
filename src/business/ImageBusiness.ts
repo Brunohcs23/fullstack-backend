@@ -1,23 +1,24 @@
-import { CustomError } from "../errors/CustomError";
 import { ImageDatabase } from "../data/ImageDatabase";
 import { UserDatabase } from "../data/UserDatabase";
-import { ImageInputDTO, TagsDTO } from "../model/Media";
-import { IdGenerator } from "../services/IdGenerator";
+import { CustomError } from "../errors/CustomError";
+import { ImageInputDTO } from "../model/Images";
 import { Authenticator } from "../services/Authenticator";
+import { IdGenerator } from "../services/IdGenerator";
 
 export class ImageBusiness {
+
     constructor(
         private idGenerator: IdGenerator,
         private authenticator: Authenticator,
         private imageDatabase: ImageDatabase,
-        private userDatabse: UserDatabase
+        private userDatabase: UserDatabase
     ) { }
 
     public async createImage(token: string, input: ImageInputDTO): Promise<void> {
         try {
 
             if (!token) {
-                throw new CustomError(422, "Sorry!You must be 'login' to use these resource")
+                throw new CustomError(422, "Sorry!You must be 'login' first")
             }
 
             if (!input.subtitle || !input.author || !input.file || !input.collection) {
@@ -30,10 +31,10 @@ export class ImageBusiness {
 
             const authToken = this.authenticator.getData(token)
 
-            const authUser = this.userDatabse.getUserById(authToken.id)
-            
-            if(!authUser){
-                throw new CustomError(404, "Sorry! User not found")    
+            const authUser = this.userDatabase.getUserById(authToken.id)          
+
+            if (!authUser) {
+                throw new CustomError(404, "Sorry! User not found")
             }
 
             const imageId = this.idGenerator.generate()
@@ -41,34 +42,40 @@ export class ImageBusiness {
 
             for (let item of input.tags) {
 
-                const tagId = this.idGenerator.generate()
-                const tag: TagsDTO = await this.imageDatabase.findTag(item)
+                const newTagId = this.idGenerator.generate()
+                const tag = await this.imageDatabase.findTag(item)
 
                 if (!tag) {
-                    await this.imageDatabase.createTag({ id: tagId, name: item })
-                    imageTags.push(tag.id)
+                    await this.imageDatabase.createTag({ id: newTagId, name: item })
+                    imageTags.push(newTagId)
 
                 } else {
                     imageTags.push(tag.id)
                 }
             }
 
-            await this.imageDatabase.createImage(imageId, input.subtitle, input.author, new Date(), input.file, input.collection)
+            await this.imageDatabase.createImage({
+                id: imageId,
+                subtitle: input.subtitle,
+                author: input.author,
+                file: input.file,
+                collection: input.collection,
+                accountId: authToken.id
+            })
 
-            for (let tag of imageTags) {
-                await this.imageDatabase.addImageTags(imageId, tag)
+            for(let tag of imageTags){
+                await this.imageDatabase.addImageTag(imageId, tag)
             }
 
         } catch (error) {
-
             throw new CustomError(error.statusCode, error.message)
         }
     }
 }
 
 export default new ImageBusiness(
-    new IdGenerator(),
-    new Authenticator(),
-    new ImageDatabase(),
+    new IdGenerator,
+    new Authenticator,
+    new ImageDatabase,
     new UserDatabase()
 )
