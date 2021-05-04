@@ -1,82 +1,56 @@
+import { Request, Response } from "express";
+import userBusiness from "../business/UserBusiness"
 import { BaseDatabase } from "../data/BaseDatabase";
-import { Accounts } from "../model/Accounts";
-import { Users } from "../model/Users";
+import { LoginInputDTO } from "../model/Accounts";
+import { SignupInputDTO } from "../model/Users";
 
-export class UserDatabase extends BaseDatabase {
+export class UserController {
 
-    private TABLE_USERS = process.env.DB_TABLE_USERS
-    private TABLE_ACCOUNTS = process.env.DB_TABLE_ACCOUNTS
+    public async signup(req: Request, res: Response) {
 
-    private toModel(dbModel?: any): Accounts | undefined {
-        return (dbModel &&
-            new Accounts(
-                dbModel.id,
-                dbModel.email,
-                dbModel.nickname,
-                dbModel.password,
-                dbModel.userId
-            )
-        )
-    };
-
-    public async createUser(user: Users): Promise<void> {
         try {
 
-            await this.getConnection()
-                .insert({
-                    id: user.getId(),
-                    name: user.getName(),
-                    gender: user.getGender(),
-                    birth_date: user.getBirthDate(),
-                    email: user.getEmail(),
-                    nickname: user.getNickname()
-                })
-                .into(this.TABLE_USERS!)
+            const input: SignupInputDTO = {
+                name: req.body.name,
+                gender: req.body.gender,
+                birthDate: req.body.birthDate,
+                email: req.body.email,
+                nickname: req.body.nickname,
+                password: req.body.password
+            }
+
+            const token = await userBusiness.signup(input)
+
+            res.status(200).send({ Token: token })
 
         } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
         }
+
+        await BaseDatabase.destroyConnection();
+
     }
 
-    public async createAccount(account: Accounts): Promise<void> {
+    public async login(req: Request, res: Response) {
         try {
 
-            await this.getConnection()
-                .insert({
-                    id: account.getId(),
-                    email: account.getEmail(),
-                    nickname: account.getNickname(),
-                    password: account.getPassword(),
-                    user_id: account.getUserId()
-                })
-                .into(this.TABLE_ACCOUNTS!)
+            const input: LoginInputDTO = {
+                email: req.body.email,
+                password: req.body.password
+            }
+
+            const token = await userBusiness.login(input)
+
+            res.status(200).send(token);
 
         } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
         }
-    }
 
-    public async getUserByEmail(email: string): Promise<Accounts | undefined> {
-        try {
-            const [result] = await this.getConnection()
-                .select("*")
-                .from(this.TABLE_ACCOUNTS!)
-                .where({ email })
-
-            return this.toModel(result)
-
-        } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
-        }
-    }
-
-    public async getUserById(id: string): Promise<any> {
-        try {
-
-        } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
-        }
+        await BaseDatabase.destroyConnection();
     }
 }
 
-export default new UserDatabase()
+export default new UserController()

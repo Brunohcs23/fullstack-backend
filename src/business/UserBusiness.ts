@@ -17,8 +17,8 @@ export class UserBusiness {
     public async signup(user: SignupInputDTO): Promise<string> {
         try {
 
-            if (!user.name || !user.email || !user.nickname || !user.password) {
-                throw new CustomError(422, "Please check 'name', 'email', 'nickname' and 'password' were filled");
+            if (!user.name || !user.email || !user.nickname || !user.password || !user.gender) {
+                throw new CustomError(422, "Please check 'name', 'email', 'nickname', 'gender' and 'password' were filled");
             }
 
             if (user.password.length < 7) {
@@ -42,7 +42,7 @@ export class UserBusiness {
                 new Accounts(accId, user.email, user.nickname, cypherPassword, userId)
             )
 
-            const accessToken = this.authenticator.generateToken({ id: userId })
+            const accessToken = this.authenticator.generateToken({ id: accId })
 
             return accessToken
 
