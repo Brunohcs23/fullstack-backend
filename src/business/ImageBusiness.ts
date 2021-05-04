@@ -80,7 +80,7 @@ export class ImageBusiness {
 
             const results = await this.imageDatabase.getAllImages()
 
-            if(!results){
+            if (!results) {
                 throw new CustomError(404, "Sorry! Try again in 1 minute")
             }
 
