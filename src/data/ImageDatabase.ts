@@ -77,4 +77,17 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
+    public async getAllImages(): Promise<Images[] | undefined> {
+        try {
+            const [result] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_IMAGES)
+            
+            return result
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
 }

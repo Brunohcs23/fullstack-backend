@@ -58,12 +58,33 @@ export class ImageBusiness {
             }
 
             await this.imageDatabase.createImage(
-                new Images(imageId,input.subtitle,input.author,input.file,input.collection,authToken.id)
+                new Images(imageId, input.subtitle, input.author, input.file, input.collection, authToken.id)
             )
 
             for (let tag of imageTags) {
                 await this.imageDatabase.addImageTag(imageId, tag)
             }
+
+        } catch (error) {
+            throw new CustomError(error.statusCode, error.message)
+        }
+    }
+
+    public async getAllImages(token: string): Promise<Images[]> {
+
+        try {
+
+            if (!token) {
+                throw new CustomError(422, "Sorry!You must be 'login' first")
+            }
+
+            const results = await this.imageDatabase.getAllImages()
+
+            if(!results){
+                throw new CustomError(404, "Sorry! Try again in 1 minute")
+            }
+
+            return results
 
         } catch (error) {
             throw new CustomError(error.statusCode, error.message)
