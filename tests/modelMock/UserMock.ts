@@ -1,10 +1,19 @@
-import { User } from "../../src/model/User";
+import { SignupInputDTO, Users } from "../../src/model/Users";
 
-export const userMock = new User(
+export const signupTest: SignupInputDTO = {
+    name: "AstroDev",
+    gender: "male",
+    birthDate: new Date(),
+    email: "astrodev@dev.com",
+    nickname: "AstroDev",
+    password: "12345678"
+}
+
+export const userTest = new Users(
     "userId",
-    "Username",
-    "user@email.com",
-    "User nickname",
-    "1234567"
+    "userName",
+    "userGender",
+    new Date(),
+    "user@test.com",
+    "userNikname"
 )
-

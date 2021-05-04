@@ -1,30 +1,25 @@
 import { UserBusiness } from "../../src/business/UserBusiness";
-import idGeneratorMock from "../servicesMock/IdGeneratorMock"
-import hashManagerMock from "../servicesMock/HashManagerMock"
-import authenticatorMock from "../servicesMock/AuthenticatorMock"
-import userDatabaseMock from "../dataMock/UserDatabaseMock"
 import { UserDatabase } from "../../src/data/UserDatabase";
-import { userMock } from "../modelMock/UserMock";
+
+import idGenerator from "../servicesMock/IdGeneratorMock";
+import hashManager from "../servicesMock/HashManagerMock";
+import authenticator from "../servicesMock/AuthenticatorMock";
+import userDatabaseMock from "../dataMock/UserDatabaseMock";
+import { signupTest } from "../modelMock/UserMock";
 
 const userBusiness = new UserBusiness(
-    idGeneratorMock,
-    hashManagerMock,
-    authenticatorMock,
+    idGenerator,
+    hashManager,
+    authenticator,
     userDatabaseMock as UserDatabase
 )
 
 describe("Signup", () => {
 
-    test("Should return error when 'name', 'email', 'nickname' or 'password' are blank", async () => {
+    test('should return error when inputs are missing', async () => {
         expect.assertions(2)
         try {
-
-            await userBusiness.signup({
-                name: "",
-                email: userMock.getEmail(),
-                nickname: userMock.getNickname(),
-                password: userMock.getPassword()
-            })
+            await userBusiness.signup({ ...signupTest, name: "" })
 
         } catch (error) {
             expect(error.statusCode).toBe(422)
@@ -32,16 +27,10 @@ describe("Signup", () => {
         }
     })
 
-    test("Should return error when 'email' is invalid", async () => {
+    test("should return error when 'email' is invalid", async () => {
         expect.assertions(2)
         try {
-
-            await userBusiness.signup({
-                name: userMock.getName(),
-                email: "useremail.com",
-                nickname: userMock.getNickname(),
-                password: userMock.getPassword()
-            })
+            await userBusiness.signup({ ...signupTest, email: "invalidEmail.com" })
 
         } catch (error) {
             expect(error.statusCode).toBe(422)
@@ -49,33 +38,10 @@ describe("Signup", () => {
         }
     })
 
-    test("Should return error when 'nickname' is blank", async () => {
+    test("should return error when 'password' is invalid", async () => {
         expect.assertions(2)
         try {
-
-            await userBusiness.signup({
-                name: userMock.getName(),
-                email: userMock.getEmail(),
-                nickname: "",
-                password: userMock.getPassword()
-            })
-
-        } catch (error) {
-            expect(error.statusCode).toBe(422)
-            expect(error.message).toBe("Please check 'name', 'email', 'nickname' and 'password' were filled")
-        }
-    })
-
-    test("Should return error when 'password' is invalid", async () => {
-        expect.assertions(2)
-        try {
-
-            await userBusiness.signup({
-                name: userMock.getName(),
-                email: userMock.getEmail(),
-                nickname: userMock.getNickname(),
-                password: "1234"
-            })
+            await userBusiness.signup({ ...signupTest, password: "123" })
 
         } catch (error) {
             expect(error.statusCode).toBe(422)
@@ -83,88 +49,16 @@ describe("Signup", () => {
         }
     })
 
-    test("Should return Sucess when all fields are correct", async () => {
+    test("should return success when all fields are valid", async () => {
         expect.assertions(1)
         try {
+            const accessToken = await userBusiness.signup({ ...signupTest })
 
-            const acessToken = await userBusiness.signup({
-                name: userMock.getName(),
-                email: userMock.getEmail(),
-                nickname: userMock.getNickname(),
-                password: userMock.getPassword()
-            })
-
-            expect(acessToken).toBe("token")
+            expect(accessToken).toBe("bananinha")
 
         } catch (error) {
 
         }
     })
-})
 
-describe("Login", () => {
-
-    test("Should return error when 'email' or 'password' are blank", async () => {
-        expect.assertions(2)
-
-        try {
-
-            await userBusiness.login({
-                email: "",
-                password: userMock.getPassword()
-            })
-
-        } catch (error) {
-            expect(error.statusCode).toBe(422)
-            expect(error.message).toBe("Missing input! Check 'email' and 'password' were filled")
-        }
-    })
-
-    test("Should return error when 'email' is invalid", async () => {
-        expect.assertions(2)
-
-        try {
-
-            await userBusiness.login({
-                email: "bruno@teste.com.br",
-                password: userMock.getPassword()
-            })
-
-        } catch (error) {
-            expect(error.statusCode).toBe(401)
-            expect(error.message).toBe("Invalid credentials")
-        }
-    })
-
-    test("Should return error when 'password' is invalid", async () => {
-        expect.assertions(2)
-
-        try {
-
-            await userBusiness.login({
-                email: userMock.getEmail(),
-                password: "23181910"
-            })
-
-        } catch (error) {
-            expect(error.statusCode).toBe(401)
-            expect(error.message).toBe("Invalid credentials")
-        }
-    })
-
-    test("Should return Sucess when all fields are correct", async () => {
-        expect.assertions(1)
-        try {
-
-            const acessToken = await userBusiness.login({                
-                email: userMock.getEmail(),
-                password: userMock.getPassword()
-            })
-
-            expect(acessToken).toBe("token")
-
-        } catch (error) {
-
-        }
-    })
 })

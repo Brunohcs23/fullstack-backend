@@ -1,6 +1,7 @@
 import { UserDatabase } from "../data/UserDatabase";
 import { CustomError } from "../errors/CustomError";
-import { LoginInputDTO, SignupInputDTO, User } from "../model/User";
+import { Accounts, LoginInputDTO } from "../model/Accounts";
+import { SignupInputDTO, Users } from "../model/Users";
 import { Authenticator } from "../services/Authenticator";
 import { HashManager } from "../services/HashManager";
 import { IdGenerator } from "../services/IdGenerator";
@@ -14,7 +15,6 @@ export class UserBusiness {
     ) { }
 
     public async signup(user: SignupInputDTO): Promise<string> {
-
         try {
 
             if (!user.name || !user.email || !user.nickname || !user.password) {
@@ -29,19 +29,24 @@ export class UserBusiness {
                 throw new CustomError(422, "Sorry, invalid 'email'.")
             }
 
-            const id = this.idGenerator.generate();
-            const cypherPassword = await this.hashManager.hash(user.password)
+            const userId = this.idGenerator.generate()
 
             await this.userDatabase.createUser(
-                new User(id, user.name, user.email, user.nickname, cypherPassword)
+                new Users(userId, user.name, user.gender, user.birthDate, user.email, user.nickname)
             )
 
-            const acessToken: string = this.authenticator.generateToken({ id })
+            const accId = this.idGenerator.generate()
+            const cypherPassword = await this.hashManager.hash(user.password)
 
-            return acessToken
+            await this.userDatabase.createAccount(
+                new Accounts(accId, user.email, user.nickname, cypherPassword, userId)
+            )
+
+            const accessToken = this.authenticator.generateToken({ id: userId })
+
+            return accessToken
 
         } catch (error) {
-
             if (error.message.includes("key 'email'")) {
                 throw new CustomError(409, "Email already in use")
             }
@@ -55,41 +60,28 @@ export class UserBusiness {
     }
 
     public async login(user: LoginInputDTO): Promise<string> {
-
         try {
 
             if (!user.email || !user.password) {
                 throw new CustomError(422, "Missing input! Check 'email' and 'password' were filled");
             }
 
-            /* 
-            Checar no banco se existe o usuario por email.
-            Futura implementação de busca por nickname tambem. Talvez usando um if/else com regex.
-            */
-
             const authUser = await this.userDatabase.getUserByEmail(user.email)
 
-            if (!authUser) {
+            const passwordCompare = await this.hashManager.compare(user.password, authUser!.getPassword())
+
+            if (!authUser && !passwordCompare) {
                 throw new CustomError(401, "Invalid credentials");
             }
 
-            const passwordCompare = await this.hashManager.compare(user.password, authUser.getPassword())
+            const accessToken = this.authenticator.generateToken({ id: authUser!.getId() })
 
-            if (!passwordCompare) {
-                throw new CustomError(401, "Invalid credentials")
-            }
-
-            const acessToken = this.authenticator.generateToken({ id: authUser.getId() })
-
-            return acessToken
+            return accessToken
 
         } catch (error) {
-
             throw new CustomError(error.statusCode, error.message)
-
         }
     }
-
 }
 
 export default new UserBusiness(
