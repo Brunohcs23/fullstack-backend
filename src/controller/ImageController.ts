@@ -11,7 +11,7 @@ export class ImageContoller {
             const token: string | undefined = req.headers.authorization
 
             const input: ImageInputDTO = {
-                subtitle: req.body.subtile,
+                subtitle: req.body.subtitle,
                 author: req.body.author,
                 file: req.body.file,
                 tags: req.body.tags,

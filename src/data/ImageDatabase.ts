@@ -76,5 +76,6 @@ export class ImageDatabase extends BaseDatabase {
             throw new Error(error.sqlmessage || error.message);
         }
     }
-
 }
+
+export default new ImageDatabase()
