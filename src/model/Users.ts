@@ -1,10 +1,11 @@
-export class User {
+export class Users {
     constructor(
         private id: string,
         private name: string,
+        private gender: string,
+        private birthDate: Date,
         private email: string,
-        private nickname: string,
-        private password: string,
+        private nickname: string       
     ) { }
 
     public getId(): string {
@@ -15,6 +16,13 @@ export class User {
         return this.name;
     }
 
+    public getGender(): string {
+        return this.gender;
+    }
+
+    public getBirthDate(): Date {
+        return this.birthDate;
+    }
     public getEmail(): string {
         return this.email;
     }
@@ -22,25 +30,14 @@ export class User {
     public getNickname(): string {
         return this.nickname;
     }
-
-    public getPassword(): string {
-        return this.password;
-    }
 }
 
 export interface SignupInputDTO {
     name: string;
+    gender: string;
+    birthDate: Date;
     email: string;
     nickname: string;
     password: string;
 }
 
-export interface LoginInputDTO {
-    email: string;
-    password: string;
-}
-
-export interface FindUser { 
-    name: string,
-    nickname: string
-}

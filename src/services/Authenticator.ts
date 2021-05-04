@@ -5,7 +5,7 @@ dotenv.config();
 
 export class Authenticator {
 
-  private static expiresIn: string | number = process.env.JWT_EXPIRES_IN
+  private static expiresIn: number = Number(process.env.JWT_EXPIRES_IN)
 
   public generateToken = (input: AuthenticationData): string => {
     const token = jwt.sign(
