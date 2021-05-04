@@ -1,7 +1,8 @@
 import { ImageDatabase } from "../data/ImageDatabase";
 import { UserDatabase } from "../data/UserDatabase";
 import { CustomError } from "../errors/CustomError";
-import { ImageInputDTO } from "../model/Images";
+import { ImageInputDTO, Images } from "../model/Images";
+import { Tags } from "../model/Tags";
 import { Authenticator } from "../services/Authenticator";
 import { IdGenerator } from "../services/IdGenerator";
 
@@ -31,7 +32,7 @@ export class ImageBusiness {
 
             const authToken = this.authenticator.getData(token)
 
-            const authUser = this.userDatabase.getUserById(authToken.id)          
+            const authUser = this.userDatabase.getUserById(authToken.id)
 
             if (!authUser) {
                 throw new CustomError(404, "Sorry! User not found")
@@ -46,24 +47,21 @@ export class ImageBusiness {
                 const tag = await this.imageDatabase.findTag(item)
 
                 if (!tag) {
-                    await this.imageDatabase.createTag({ id: newTagId, name: item })
+                    await this.imageDatabase.createTag(
+                        new Tags(newTagId, item)
+                    )
                     imageTags.push(newTagId)
 
                 } else {
-                    imageTags.push(tag.id)
+                    imageTags.push(tag.getId())
                 }
             }
 
-            await this.imageDatabase.createImage({
-                id: imageId,
-                subtitle: input.subtitle,
-                author: input.author,
-                file: input.file,
-                collection: input.collection,
-                accountId: authToken.id
-            })
+            await this.imageDatabase.createImage(
+                new Images(imageId,input.subtitle,input.author,input.file,input.collection,authToken.id)
+            )
 
-            for(let tag of imageTags){
+            for (let tag of imageTags) {
                 await this.imageDatabase.addImageTag(imageId, tag)
             }
 

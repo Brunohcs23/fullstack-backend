@@ -29,6 +29,8 @@ export class UserBusiness {
                 throw new CustomError(422, "Sorry, invalid 'email'.")
             }
 
+            /* Implementar a logica de idade para maior de 18 anos */
+
             const userId = this.idGenerator.generate()
 
             await this.userDatabase.createUser(
