@@ -1,4 +1,4 @@
-import { DbImageInputDTO } from "../model/Images";
+import { Images } from "../model/Images";
 import { DbTagDTO, Tags } from "../model/Tags";
 import { BaseDatabase } from "./BaseDatabase";
 
@@ -17,16 +17,16 @@ export class ImageDatabase extends BaseDatabase {
         )
     };
 
-    public async createImage(image: DbImageInputDTO): Promise<void> {
+    public async createImage(image: Images): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
-                    id: image.id,
-                    subtitle: image.subtitle,
-                    author: image.author,
-                    file: image.file,
-                    collection: image.collection,
-                    account_id: image.accountId
+                    id: image.getId(),
+                    subtitle: image.getSubtitle(),
+                    author: image.getAuthor(),
+                    file: image.getFile(),
+                    collection: image.getCollection(),
+                    account_id: image.getAccountId()
                 })
                 .into(this.TABLE_IMAGES!)
 
@@ -35,26 +35,26 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async findTag(text: string): Promise<DbTagDTO | undefined> {
+    public async findTag(text: string): Promise<Tags | undefined> {
         try {
             const [result] = await this.getConnection()
                 .select("*")
                 .from(this.TABLE_TAGS!)
                 .where({ name: text })
 
-            return result
+            return this.toTagModel(result)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
         }
     }
 
-    public async createTag(tag: DbTagDTO): Promise<void> {
+    public async createTag(tag: Tags): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
-                    id: tag.id,
-                    name: tag.name
+                    id: tag.getId(),
+                    name: tag.getName()
                 })
                 .into(this.TABLE_TAGS!)
 
@@ -76,6 +76,18 @@ export class ImageDatabase extends BaseDatabase {
             throw new Error(error.sqlmessage || error.message);
         }
     }
-}
 
-export default new ImageDatabase()
+    public async getAllImages(): Promise<Images[] | undefined> {
+        try {
+            const result = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_IMAGES)
+
+            return result
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+}

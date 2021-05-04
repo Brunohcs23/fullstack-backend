@@ -23,7 +23,7 @@ describe("Signup", () => {
 
         } catch (error) {
             expect(error.statusCode).toBe(422)
-            expect(error.message).toBe("Please check 'name', 'email', 'nickname' and 'password' were filled")
+            expect(error.message).toBe("Please check 'name', 'email', 'nickname', 'gender' and 'password' were filled")
         }
     })
 

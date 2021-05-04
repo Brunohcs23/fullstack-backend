@@ -29,6 +29,22 @@ export class ImageContoller {
 
         await BaseDatabase.destroyConnection();
     }
+
+    public async allImages(req: Request, res: Response) {
+
+        try {
+
+            const token = req.headers.authorization
+
+            const images = await imageBusiness.getAllImages(token)
+
+            res.status(200).send({ Results: images })
+
+        } catch (error) {
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
+        }
+    }
 }
 
 export default new ImageContoller()

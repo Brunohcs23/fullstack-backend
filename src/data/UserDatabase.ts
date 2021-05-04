@@ -70,8 +70,14 @@ export class UserDatabase extends BaseDatabase {
         }
     }
 
-    public async getUserById(id: string): Promise<any> {
+    public async getUserById(id: string): Promise<Accounts | undefined> {
         try {
+            const [user] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_ACCOUNTS!)
+                .where({ user_id: id })
+
+            return this.toModel(user)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
