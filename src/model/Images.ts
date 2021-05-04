@@ -1,9 +1,9 @@
-export class Image {
+export class Images {
     constructor(
         private id: string,
+        private createdAt: Date,
         private subtitle: string,
         private author: string,
-        private date: Date = new Date(),
         private file: string,
         private tags: string[] = [],
         private collection: string
@@ -11,6 +11,10 @@ export class Image {
 
     public getId(): string {
         return this.id
+    }
+
+    public getCreatedAt(): Date {
+        return this.createdAt
     }
 
     public getSubtitle(): string {
@@ -21,15 +25,11 @@ export class Image {
         return this.author
     }
 
-    public getDate(): Date {
-        return this.date
-    }
-
     public getFile(): string {
         return this.file
     }
 
-    public getTags(): string[] { 
+    public getTags(): string[] {
         return this.tags
     }
 
@@ -46,7 +46,11 @@ export interface ImageInputDTO {
     collection: string
 }
 
-export interface TagsDTO {
+export interface DbImageInputDTO { 
     id: string,
-    name: string
+    subtitle: string,
+    author: string,
+    file: string,
+    collection: string,
+    accountId: string
 }
