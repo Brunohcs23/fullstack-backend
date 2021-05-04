@@ -1,85 +1,46 @@
-import { Image, TagsDTO } from "../model/Media";
+import { DbImageInputDTO } from "../model/Images";
+import { DbTagDTO, Tags } from "../model/Tags";
 import { BaseDatabase } from "./BaseDatabase";
 
 export class ImageDatabase extends BaseDatabase {
 
-    private TABLE_IMAGE: string = "tabela criada para as imagens"
-    private TABLE_TAGS: string = "tabela criada para as tags"
-    private TABLE_IMAGES_TAGS: string = "tabela combinada para as imagens e as tags"
+    private TABLE_IMAGES = process.env.DB_TABLE_IMAGES
+    private TABLE_TAGS = process.env.DB_TABLE_TAGS
+    private TABLE_IMAGES_TAGS = process.env.DB_TABLE_IMAGES_TAGS
 
-    public async createImage(
-        id: string,
-        subtitle: string,
-        author: string,
-        date: Date,
-        file: string,
-        collection: string
-    ): Promise<void> {
+    private toTagModel(dbTagModel?: any): Tags | undefined {
+        return (dbTagModel &&
+            new Tags(
+                dbTagModel.id,
+                dbTagModel.name
+            )
+        )
+    };
+
+    public async createImage(image: DbImageInputDTO): Promise<void> {
         try {
             await this.getConnection()
                 .insert({
-                    id,
-                    subtitle,
-                    author,
-                    date,
-                    file,
-                    collection
+                    id: image.id,
+                    subtitle: image.subtitle,
+                    author: image.author,
+                    file: image.file,
+                    collection: image.collection,
+                    account_id: image.accountId
                 })
-                .into(this.TABLE_IMAGE)
+                .into(this.TABLE_IMAGES!)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
         }
     }
 
-    public async findTag(text: string): Promise<TagsDTO | undefined> {
+    public async findTag(text: string): Promise<DbTagDTO | undefined> {
         try {
-
-            const [tag] = await this.getConnection()
+            const [result] = await this.getConnection()
                 .select("*")
-                .from(this.TABLE_TAGS)
+                .from(this.TABLE_TAGS!)
                 .where({ name: text })
-            return tag
-
-        } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
-        }
-    }
-
-    public async createTag(tag: TagsDTO): Promise<void> {
-        try {
-            await this.getConnection().
-                insert({
-                    id: tag.id,
-                    name: tag.name
-                })
-                .into(this.TABLE_TAGS)
-
-        } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
-        }
-    }
-
-    public async addImageTags(imageId: string, tagId: string): Promise<void> {
-
-        try {
-            await this.getConnection()
-                .insert({
-                    image_id: imageId,
-                    tag_id: tagId
-                })
-                .into(this.TABLE_IMAGES_TAGS)
-
-        } catch (error) {
-            throw new Error(error.sqlmessage || error.message);
-        }
-    }
-
-    public async getAllImages(): Promise<Image[] | undefined> {
-        try {
-            const result = await this.getConnection()
-                .select("*")
-                .from(this.TABLE_IMAGE)
 
             return result
 
@@ -88,18 +49,32 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getImageById(id: string): Promise<Image | undefined> {
+    public async createTag(tag: DbTagDTO): Promise<void> {
         try {
-            const result = await this.getConnection()
-                .from(this.TABLE_IMAGE)
-                .where({ id })
-
-            return result[0]
+            await this.getConnection()
+                .insert({
+                    id: tag.id,
+                    name: tag.name
+                })
+                .into(this.TABLE_TAGS!)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
         }
     }
-}
 
-export default new ImageDatabase()
+    public async addImageTag(imageId: string, tagId: string): Promise<void> {
+        try {
+            await this.getConnection()
+                .insert({
+                    image_id: imageId,
+                    tag_id: tagId
+                })
+                .into(this.TABLE_IMAGES_TAGS!)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+}
