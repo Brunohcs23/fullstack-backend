@@ -101,15 +101,18 @@ export class ImageBusiness {
 
             if (!id) {
                 throw new CustomError(422, "Please check 'id' were filled")
-            }    
-            
-            const results = await this.imageDatabase.getImageDetails(id)
-
-            if (!results) {
-                throw new CustomError(404, "Sorry! Try again in 1 minute")
             }
 
-            return results
+            const details = await this.imageDatabase.getImageDetails(id)
+            const tags = await this.imageDatabase.getImageTags(id)
+
+            if (!details && !tags) {
+                throw new CustomError(404, "Sorry! Try again in 1 minute")
+            }           
+
+            
+
+            return {details, tags}
 
         } catch (error) {
             throw new CustomError(error.statusCode, error.message)

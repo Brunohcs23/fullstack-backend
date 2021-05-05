@@ -102,15 +102,26 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getImageDetails(id: string): Promise<any> {
+    public async getImageDetails(id: string): Promise<Images | undefined> {
         try {
 
             const [image] = await this.getConnection()
                 .select("*")
                 .from(this.TABLE_IMAGES)
                 .where({ id: id })
-            
-            const tag = await this.getConnection().raw(`
+
+            return this.toImageModel(image)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async getImageTags(id: string): Promise<any> {
+
+        try {
+
+            const tags = await this.getConnection().raw(`
                 SELECT name
                 FROM IMG_MANAGER_IMAGES_TAGS
                 JOIN IMG_MANAGER_IMAGES as images
@@ -120,8 +131,7 @@ export class ImageDatabase extends BaseDatabase {
                 WHERE images.id = '${id}'    
             `)
 
-
-            return {details: this.toImageModel(image), tags: tag[0]}
+            return tags[0]
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
