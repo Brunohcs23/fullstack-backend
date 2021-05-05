@@ -29,3 +29,8 @@ export interface CollectionInputDTO {
     subtitle: string,
     image?: string
 }
+
+export interface DbInputImageCollection {
+    collectionId: string,
+    imageId: string
+}
