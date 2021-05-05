@@ -36,14 +36,34 @@ export class ImageContoller {
 
             const token = req.headers.authorization
 
-            const images = await imageBusiness.getAllImages(token)
+            const data = await imageBusiness.getAllImages(token)
 
-            res.status(200).send({ Results: images })
+            res.status(200).send({ Results: data })
 
         } catch (error) {
             const { statusCode, message } = error
             res.status(statusCode || 400).send({ message });
         }
+
+        await BaseDatabase.destroyConnection();
+    }
+
+    public async getImageById(req: Request, res: Response) {
+
+        try {
+            const token = req.headers.authorization
+            const id: string = req.params.id as string
+
+            const data = await imageBusiness.getImageById(token, id)
+
+            res.status(200).send(data)
+
+        } catch (error) {
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
+        }
+
+        await BaseDatabase.destroyConnection();
     }
 }
 

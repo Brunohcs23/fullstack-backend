@@ -40,3 +40,9 @@ export interface ImageInputDTO {
     tags: string[],
     collection: string
 }
+
+export interface allImagesDTO{
+    id: string,
+    file: string,
+    author: string
+}

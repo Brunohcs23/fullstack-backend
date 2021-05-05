@@ -1,7 +1,7 @@
 import { ImageDatabase } from "../data/ImageDatabase";
 import { UserDatabase } from "../data/UserDatabase";
 import { CustomError } from "../errors/CustomError";
-import { ImageInputDTO, Images } from "../model/Images";
+import { allImagesDTO, ImageInputDTO, Images } from "../model/Images";
 import { Tags } from "../model/Tags";
 import { Authenticator } from "../services/Authenticator";
 import { IdGenerator } from "../services/IdGenerator";
@@ -70,7 +70,7 @@ export class ImageBusiness {
         }
     }
 
-    public async getAllImages(token: string): Promise<Images[]> {
+    public async getAllImages(token: string): Promise<allImagesDTO[]> {
 
         try {
 
@@ -79,6 +79,31 @@ export class ImageBusiness {
             }
 
             const results = await this.imageDatabase.getAllImages()
+
+            if (!results) {
+                throw new CustomError(404, "Sorry! Try again in 1 minute")
+            }
+
+            return results
+
+        } catch (error) {
+            throw new CustomError(error.statusCode, error.message)
+        }
+    }
+
+    public async getImageById(token: string, id: string): Promise<any> {
+
+        try {
+
+            if (!token) {
+                throw new CustomError(422, "Sorry!You must be 'login' first")
+            }
+
+            if (!id) {
+                throw new CustomError(422, "Please check 'id' were filled")
+            }    
+            
+            const results = await this.imageDatabase.getImageDetails(id)
 
             if (!results) {
                 throw new CustomError(404, "Sorry! Try again in 1 minute")

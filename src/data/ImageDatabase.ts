@@ -1,4 +1,4 @@
-import { Images } from "../model/Images";
+import { allImagesDTO, Images } from "../model/Images";
 import { DbTagDTO, Tags } from "../model/Tags";
 import { BaseDatabase } from "./BaseDatabase";
 
@@ -15,6 +15,18 @@ export class ImageDatabase extends BaseDatabase {
                 dbTagModel.name
             )
         )
+    };
+
+    private toImageModel(dbModel?: any): Images | undefined {
+        return (dbModel &&
+            new Images(
+                dbModel.image_id,
+                dbModel.subtitle,
+                dbModel.author,
+                dbModel.file,
+                dbModel.collection,
+                dbModel.account_id
+            ))
     };
 
     public async createImage(image: Images): Promise<void> {
@@ -77,13 +89,39 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getAllImages(): Promise<Images[] | undefined> {
+    public async getAllImages(): Promise<allImagesDTO[] | undefined> {
         try {
             const result = await this.getConnection()
-                .select("*")
+                .select("id", "file", "author")
                 .from(this.TABLE_IMAGES)
 
             return result
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async getImageDetails(id: string): Promise<any> {
+        try {
+
+            const [image] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_IMAGES)
+                .where({ id: id })
+            
+            const tag = await this.getConnection().raw(`
+                SELECT name
+                FROM IMG_MANAGER_IMAGES_TAGS
+                JOIN IMG_MANAGER_IMAGES as images
+                ON IMG_MANAGER_IMAGES_TAGS.image_id = images.id
+                JOIN IMG_MANAGER_TAGS as tags
+                ON IMG_MANAGER_IMAGES_TAGS.tag_id = tags.id
+                WHERE images.id = '${id}'    
+            `)
+
+
+            return {details: this.toImageModel(image), tags: tag[0]}
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
