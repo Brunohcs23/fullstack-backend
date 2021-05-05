@@ -1,4 +1,5 @@
-import { Images } from "../model/Images";
+import { Collections } from "../model/Collections";
+import { allImagesDTO, Images } from "../model/Images";
 import { DbTagDTO, Tags } from "../model/Tags";
 import { BaseDatabase } from "./BaseDatabase";
 
@@ -7,6 +8,7 @@ export class ImageDatabase extends BaseDatabase {
     private TABLE_IMAGES = process.env.DB_TABLE_IMAGES
     private TABLE_TAGS = process.env.DB_TABLE_TAGS
     private TABLE_IMAGES_TAGS = process.env.DB_TABLE_IMAGES_TAGS
+    private TABLE_COLLECTIONS = process.env.DB_TABLE_COLLECTIONS
 
     private toTagModel(dbTagModel?: any): Tags | undefined {
         return (dbTagModel &&
@@ -15,6 +17,18 @@ export class ImageDatabase extends BaseDatabase {
                 dbTagModel.name
             )
         )
+    };
+
+    private toImageModel(dbModel?: any): Images | undefined {
+        return (dbModel &&
+            new Images(
+                dbModel.image_id,
+                dbModel.subtitle,
+                dbModel.author,
+                dbModel.file,
+                dbModel.collection,
+                dbModel.account_id
+            ))
     };
 
     public async createImage(image: Images): Promise<void> {
@@ -29,6 +43,24 @@ export class ImageDatabase extends BaseDatabase {
                     account_id: image.getAccountId()
                 })
                 .into(this.TABLE_IMAGES!)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async createCollections(collection: Collections, image?: string): Promise<void> {
+
+        try {
+            await this.getConnection()
+                .insert({
+                    id: collection.getId(),
+                    title: collection.getTitle(),
+                    subtitle: collection.getSubtitle(),
+                    image,
+                    account_id: collection.getAccountId()
+                })
+                .into(this.TABLE_COLLECTIONS!)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
@@ -77,10 +109,10 @@ export class ImageDatabase extends BaseDatabase {
         }
     }
 
-    public async getAllImages(): Promise<Images[] | undefined> {
+    public async getAllImages(): Promise<allImagesDTO[] | undefined> {
         try {
             const result = await this.getConnection()
-                .select("*")
+                .select("id", "file", "author")
                 .from(this.TABLE_IMAGES)
 
             return result
@@ -89,5 +121,42 @@ export class ImageDatabase extends BaseDatabase {
             throw new Error(error.sqlmessage || error.message);
         }
     }
+
+    public async getImageDetails(id: string): Promise<Images | undefined> {
+        try {
+
+            const [image] = await this.getConnection()
+                .select("*")
+                .from(this.TABLE_IMAGES)
+                .where({ id: id })
+
+            return this.toImageModel(image)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async getImageTags(id: string): Promise<any> {
+
+        try {
+
+            const tags = await this.getConnection().raw(`
+                SELECT name
+                FROM IMG_MANAGER_IMAGES_TAGS
+                JOIN IMG_MANAGER_IMAGES as images
+                ON IMG_MANAGER_IMAGES_TAGS.image_id = images.id
+                JOIN IMG_MANAGER_TAGS as tags
+                ON IMG_MANAGER_IMAGES_TAGS.tag_id = tags.id
+                WHERE images.id = '${id}'    
+            `)
+
+            return tags[0]
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
 
 }

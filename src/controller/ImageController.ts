@@ -1,6 +1,7 @@
 import { Request, Response } from "express";
 import imageBusiness from "../business/ImageBusiness";
 import { BaseDatabase } from "../data/BaseDatabase";
+import { CollectionInputDTO } from "../model/Collections";
 import { ImageInputDTO } from "../model/Images";
 
 export class ImageContoller {
@@ -36,14 +37,58 @@ export class ImageContoller {
 
             const token = req.headers.authorization
 
-            const images = await imageBusiness.getAllImages(token)
+            const data = await imageBusiness.getAllImages(token)
 
-            res.status(200).send({ Results: images })
+            res.status(200).send({ Results: data })
 
         } catch (error) {
             const { statusCode, message } = error
             res.status(statusCode || 400).send({ message });
         }
+
+        await BaseDatabase.destroyConnection();
+    }
+
+    public async getImageById(req: Request, res: Response) {
+
+        try {
+            const token = req.headers.authorization
+            const id: string = req.params.id as string
+
+            const data = await imageBusiness.getImageById(token, id)
+
+            res.status(200).send(data)
+
+        } catch (error) {
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
+        }
+
+        await BaseDatabase.destroyConnection();
+    }
+
+    public async createCollection(req: Request, res: Response) {
+
+        try {
+
+            const token = req.headers.authorization
+
+            const input: CollectionInputDTO = {
+                title: req.body.title,
+                subtitle: req.body.subtitle,
+                image: req.body.image
+            }
+
+            await imageBusiness.createCollection(token, input)
+
+            res.status(200).send(`Collection ${input.title} created!`)
+
+        } catch (error) {
+            const { statusCode, message } = error
+            res.status(statusCode || 400).send({ message });
+        }
+
+        await BaseDatabase.destroyConnection();
     }
 }
 
