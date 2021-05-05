@@ -1,3 +1,4 @@
+import { Collections } from "../model/Collections";
 import { allImagesDTO, Images } from "../model/Images";
 import { DbTagDTO, Tags } from "../model/Tags";
 import { BaseDatabase } from "./BaseDatabase";
@@ -7,6 +8,7 @@ export class ImageDatabase extends BaseDatabase {
     private TABLE_IMAGES = process.env.DB_TABLE_IMAGES
     private TABLE_TAGS = process.env.DB_TABLE_TAGS
     private TABLE_IMAGES_TAGS = process.env.DB_TABLE_IMAGES_TAGS
+    private TABLE_COLLECTIONS = process.env.DB_TABLE_COLLECTIONS
 
     private toTagModel(dbTagModel?: any): Tags | undefined {
         return (dbTagModel &&
@@ -41,6 +43,24 @@ export class ImageDatabase extends BaseDatabase {
                     account_id: image.getAccountId()
                 })
                 .into(this.TABLE_IMAGES!)
+
+        } catch (error) {
+            throw new Error(error.sqlmessage || error.message);
+        }
+    }
+
+    public async createCollections(collection: Collections, image?: string): Promise<void> {
+
+        try {
+            await this.getConnection()
+                .insert({
+                    id: collection.getId(),
+                    title: collection.getTitle(),
+                    subtitle: collection.getSubtitle(),
+                    image,
+                    account_id: collection.getAccountId()
+                })
+                .into(this.TABLE_COLLECTIONS!)
 
         } catch (error) {
             throw new Error(error.sqlmessage || error.message);
@@ -137,5 +157,6 @@ export class ImageDatabase extends BaseDatabase {
             throw new Error(error.sqlmessage || error.message);
         }
     }
+
 
 }
